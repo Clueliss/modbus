@@ -1,0 +1,14 @@
+[package]
+name = "modbus"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.21.2", default-features = false, features = ["net", "io-util"] }
+bincode = "1.3.3"
+serde = { version = "1.0.147", features = ["derive"] }
+lazy_static = "1.4.0"
+thiserror = "1.0.37"
+
+[dev-dependencies]
+tokio = { version = "1.21.2", default-features = false, features = ["macros", "rt", "time"] }
