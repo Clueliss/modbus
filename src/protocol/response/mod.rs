@@ -34,15 +34,11 @@ pub struct ReadResponse {
 
 impl ReadResponse {
     pub fn parse(mut data: &[u8], sent_function_code: u8) -> Result<ReadResponse> {
-        let cursor = &mut data;
-        parse_response(cursor, sent_function_code)?;
+        parse_response(&mut data, sent_function_code)?;
 
-        let byte_count: u8 = BINCODE_OPTS.deserialize_from(cursor.clone())?;
+        let byte_count: u8 = BINCODE_OPTS.deserialize_from(&mut data)?;
         let data_len = byte_count as usize;
-        let data = BINCODE_OPTS
-            .deserialize_seed(varlenvec::VarLenVec::<u8>::new(data_len), cursor)
-            .unwrap();
-
+        let data = BINCODE_OPTS.deserialize_seed(varlenvec::VarLenVec::<u8>::new(data_len), &mut data)?;
         Ok(ReadResponse { function_code: sent_function_code, data })
     }
 }
