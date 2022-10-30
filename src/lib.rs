@@ -144,7 +144,7 @@ mod tests {
     async fn test() {
         let mut modbus = Modbus::new((IpAddr::from([192, 168, 0, 52]), 502));
 
-        let reg = 1066..1067;
+        let reg = 1065..1072;
         dbg!(modbus.read_input_registers(reg.clone()).await);
         dbg!(modbus.read_input_registers(reg.clone()).await);
 

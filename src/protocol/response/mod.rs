@@ -10,7 +10,7 @@ use bincode::Options;
 pub use varlenvec::VarLenVec;
 
 fn parse_response(cursor: &mut &[u8], sent_function_code: u8) -> Result<()> {
-    let function_code: u8 = BINCODE_OPTS.deserialize_from(cursor.clone())?;
+    let function_code: u8 = BINCODE_OPTS.deserialize_from(&mut *cursor)?;
 
     if function_code == sent_function_code {
         Ok(())
