@@ -1,5 +1,3 @@
-#![feature(generic_const_exprs)]
-
 mod protocol;
 pub mod result;
 
@@ -24,7 +22,7 @@ impl Modbus {
     async fn send_request<R>(&mut self, stream: &mut TcpStream, req: R) -> Result<Vec<u8>>
     where
         R: Serialize,
-        [(); std::mem::size_of::<protocol::PacketHeader>() + std::mem::size_of::<R>()]: Sized,
+        //[(); std::mem::size_of::<protocol::PacketHeader>() + std::mem::size_of::<R>()]: Sized,
     {
         let req_header = protocol::PacketHeader {
             transaction_id: self.transaction_id,
@@ -60,7 +58,7 @@ impl Modbus {
 
         let response = protocol::response::ReadResponse::parse(&response_data, req.function_code)?;
         let data = protocol::BINCODE_OPTS.deserialize_seed(
-            protocol::response::VarLenVec::<u16>::new(response.data.len() / std::mem::size_of::<u16>()),
+            protocol::response::FixedLenVec::<u16>::new(response.data.len() / std::mem::size_of::<u16>()),
             &response.data,
         )?;
 
@@ -75,7 +73,7 @@ impl Modbus {
         let mut bits: Vec<_> = response
             .data
             .into_iter()
-            .flat_map(|byte| (0..7).into_iter().map(move |shift| (byte >> shift) & 1 > 0))
+            .flat_map(|byte| (0..7).map(move |shift| (byte >> shift) & 1 > 0))
             .collect();
 
         let remain = (req.len % 8) as usize;
@@ -142,14 +140,14 @@ mod tests {
 
     #[tokio::test]
     async fn test() {
-        let mut modbus = Modbus::new((IpAddr::from([192, 168, 0, 52]), 502));
+        let mut modbus = Modbus::new((IpAddr::from([192, 168, 1, 52]), 502));
 
         let reg = 1065..1072;
-        dbg!(modbus.read_input_registers(reg.clone()).await);
-        dbg!(modbus.read_input_registers(reg.clone()).await);
+        dbg!(modbus.read_input_registers(reg.clone()).await.unwrap());
+        dbg!(modbus.read_input_registers(reg.clone()).await.unwrap());
 
         tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 
-        dbg!(modbus.read_input_registers(reg).await);
+        dbg!(modbus.read_input_registers(reg).await.unwrap());
     }
 }

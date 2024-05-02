@@ -5,15 +5,11 @@ use crate::{
 use bincode::Options;
 use serde::Serialize;
 
-pub fn serialize_request<R>(
-    header: PacketHeader,
-    req: R,
-) -> [u8; std::mem::size_of::<PacketHeader>() + std::mem::size_of::<R>()]
+pub fn serialize_request<R>(header: PacketHeader, req: R) -> Vec<u8>
 where
     R: Serialize,
-    [(); std::mem::size_of::<PacketHeader>() + std::mem::size_of::<R>()]: Sized,
 {
-    let mut out = [0; std::mem::size_of::<PacketHeader>() + std::mem::size_of::<R>()];
+    let mut out = vec![0; std::mem::size_of::<PacketHeader>() + std::mem::size_of::<R>()];
 
     BINCODE_OPTS
         .serialize_into(&mut out[..std::mem::size_of::<PacketHeader>()], &header)

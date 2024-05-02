@@ -1,4 +1,4 @@
-pub mod varlenvec;
+pub mod fixedlenvec;
 
 use crate::{
     protocol::{function_codes, BINCODE_OPTS},
@@ -7,7 +7,7 @@ use crate::{
 };
 use bincode::Options;
 
-pub use varlenvec::VarLenVec;
+pub use fixedlenvec::FixedLenVec;
 
 fn parse_response(cursor: &mut &[u8], sent_function_code: u8) -> Result<()> {
     let function_code: u8 = BINCODE_OPTS.deserialize_from(&mut *cursor)?;
@@ -38,7 +38,7 @@ impl ReadResponse {
 
         let byte_count: u8 = BINCODE_OPTS.deserialize_from(&mut data)?;
         let data_len = byte_count as usize;
-        let data = BINCODE_OPTS.deserialize_seed(varlenvec::VarLenVec::<u8>::new(data_len), &mut data)?;
+        let data = BINCODE_OPTS.deserialize_seed(FixedLenVec::<u8>::new(data_len), data)?;
         Ok(ReadResponse { function_code: sent_function_code, data })
     }
 }
